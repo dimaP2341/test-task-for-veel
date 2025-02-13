@@ -1,8 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { Todo } from './types/api'
-import { deleteTodo, getTodos, postTodo, updateTodo } from './utils/api'
+import { deleteTodo, getTodos, postTodo } from './utils/api'
 import { v4 as uuidv4 } from 'uuid'
+import { toast } from 'react-toastify'
 
 export function Todos() {
   const [title, setTitle] = useState('')
@@ -18,6 +19,10 @@ export function Todos() {
     onSuccess: (data, newTodo) => {
       const updatedTodo = { ...newTodo, id: uuidv4() }
       queryClient.setQueryData(['todos'], (old: Todo[] = []) => [...(old || []), updatedTodo])
+      toast.success('Todo added successfully!')
+    },
+    onError: (error) => {
+      toast.error(`Error adding todo: ${error.message}`)
     },
   })
 
@@ -25,6 +30,10 @@ export function Todos() {
     mutationFn: (id: number) => deleteTodo(id),
     onSuccess: (_, id) => {
       queryClient.setQueryData(['todos'], (old: Todo[] = []) => old.filter((todo) => todo.id !== id))
+      toast.success('Todo deleted successfully!')
+    },
+    onError: (error) => {
+      toast.error(`Error deleting todo: ${error.message}`)
     },
   })
 
@@ -56,14 +65,18 @@ export function Todos() {
             type="text"
             placeholder="Enter title"
           />
-          <button className="bg-white text-black px-4 rounded-md" onClick={handleAddTodo}>
-            Add
+          <button
+            className="bg-white text-black px-4 rounded-md"
+            onClick={handleAddTodo}
+            disabled={addTodoMutation.isLoading}
+          >
+            {addTodoMutation.isLoading ? 'Adding...' : 'Add'}
           </button>
         </div>
       </div>
-      <ul className="overflow-scroll">
+      <ul className="overflow-scroll space-y-2">
         {query.data?.map((todo: Todo) => (
-          <li key={todo.id || uuidv4()} className="flex gap-2">
+          <li key={todo.id} className="flex gap-2">
             {todo.title}
             <div className="space-x-2">
               <span className="cursor-pointer text-red-600" onClick={() => deleteTodoMutation.mutate(todo.id)}>
