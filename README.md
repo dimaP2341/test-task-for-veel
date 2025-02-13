@@ -1,5 +1,3 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
-
 ## Todo App using Next.js and JSONPlaceholder API
 
 This project is a simple Todo application built using Next.js, React Hooks, and the JSONPlaceholder API. The app allows users to:
