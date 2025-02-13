@@ -71,7 +71,7 @@ export function Todos() {
           </button>
         </div>
       </div>
-      <ul className="overflow-scroll space-y-2">
+      <ul className="overflow-hidden space-y-2">
         {query.data?.map((todo: Todo) => (
           <li key={todo.id} className="flex gap-2">
             {todo.title}
