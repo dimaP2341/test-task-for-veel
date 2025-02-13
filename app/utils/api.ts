@@ -7,7 +7,7 @@ async function apiRequest<T>(
   url: string,
   key: string,
   method: 'GET' | 'POST' | 'DELETE' | 'PUT' = 'GET',
-  data?: any,
+  data?: Todo | undefined,
   options: AxiosRequestConfig = {},
   asyncOption?: { signal?: AbortSignal },
 ): Promise<T> {
@@ -21,19 +21,23 @@ async function apiRequest<T>(
     })
 
     return response.data
-  } catch (error) {
-    throw new Error(`API request failed: ${error.message}`)
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      throw new Error(`API request failed: ${error.message}`)
+    } else {
+      throw new Error('API request failed: Unknown error')
+    }
   }
 }
 
-export async function getTodos(options?: AxiosRequestConfig = {}) {
+export async function getTodos(options?: AxiosRequestConfig) {
   return apiRequest<Todo[]>(url, '/todos?_limit=10', 'GET', undefined, options)
 }
 
-export async function postTodo(payload: Todo, options?: AxiosRequestConfig = {}) {
+export async function postTodo(payload: Todo, options?: AxiosRequestConfig) {
   return apiRequest<Todo>(url, '/todos', 'POST', payload, options)
 }
 
-export async function deleteTodo(id: number, options?: AxiosRequestConfig = {}) {
+export async function deleteTodo(id: number, options?: AxiosRequestConfig) {
   return apiRequest<void>(url, `todos/${id}`, 'DELETE', undefined, options)
 }

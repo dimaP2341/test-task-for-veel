@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useState } from 'react'
 import { Todo } from './types/api'
 import { deleteTodo, getTodos, postTodo } from './utils/api'
 import { v4 as uuidv4 } from 'uuid'
@@ -14,11 +14,11 @@ export function Todos() {
     queryFn: getTodos,
   })
 
-  const addTodoMutation = useMutation({
+  const addTodoMutation = useMutation<Todo, Error, Todo>({
     mutationFn: (newTodo: Todo) => postTodo(newTodo),
     onSuccess: (data, newTodo) => {
       const updatedTodo = { ...newTodo, id: uuidv4() }
-      queryClient.setQueryData(['todos'], (old: Todo[] = []) => [...(old || []), updatedTodo])
+      queryClient.setQueryData(['todos'], (old: Todo[] = []) => [...old, updatedTodo])
       toast.success('Todo added successfully!')
     },
     onError: (error) => {
@@ -26,7 +26,7 @@ export function Todos() {
     },
   })
 
-  const deleteTodoMutation = useMutation({
+  const deleteTodoMutation = useMutation<void, Error, number>({
     mutationFn: (id: number) => deleteTodo(id),
     onSuccess: (_, id) => {
       queryClient.setQueryData(['todos'], (old: Todo[] = []) => old.filter((todo) => todo.id !== id))
@@ -45,6 +45,7 @@ export function Todos() {
 
     const newTodo: Todo = {
       userId: 1,
+      id: Number(uuidv4()),
       title,
       completed: false,
     }
@@ -65,12 +66,8 @@ export function Todos() {
             type="text"
             placeholder="Enter title"
           />
-          <button
-            className="bg-white text-black px-4 rounded-md"
-            onClick={handleAddTodo}
-            disabled={addTodoMutation.isLoading}
-          >
-            {addTodoMutation.isLoading ? 'Adding...' : 'Add'}
+          <button className="bg-white text-black px-4 rounded-md" onClick={handleAddTodo}>
+            Add
           </button>
         </div>
       </div>
